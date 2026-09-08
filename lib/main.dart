@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'check_in_page.dart';
 import 'home_shell.dart';
 import 'onboarding_page.dart';
+import 'settings_page.dart';
 
 // main() is async because Hive needs to do disk setup (initFlutter) and
 // open both boxes *before* the app starts, otherwise the first screen it
@@ -21,20 +22,38 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Hive reads are synchronous once a box is open (no "await" needed), so
-    // this can happen right here in build() rather than in an async method.
-    // defaultValue: false means a first-ever launch (no key saved yet) is
-    // treated as "onboarding not seen".
-    final onboardingComplete = Hive.box(
-      settingsBoxName,
-    ).get(onboardingCompleteKey, defaultValue: false) as bool;
+    final settingsBox = Hive.box(settingsBoxName);
 
-    return MaterialApp(
-      title: 'HealthWise',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: onboardingComplete ? const HomeShell() : const OnboardingPage(),
+    // Listening here (the same "listen to a Hive box" pattern used by
+    // History/Insights/Settings) means flipping the Dark Mode switch on
+    // the Settings screen rebuilds the whole app immediately with the new
+    // theme, instead of needing a restart to take effect.
+    return ValueListenableBuilder(
+      valueListenable: settingsBox.listenable(),
+      builder: (context, Box box, _) {
+        final onboardingComplete =
+            box.get(onboardingCompleteKey, defaultValue: false) as bool;
+        final darkModeEnabled =
+            box.get(darkModeEnabledKey, defaultValue: false) as bool;
+
+        return MaterialApp(
+          title: 'HealthWise',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          ),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.deepPurple,
+              brightness: Brightness.dark,
+            ),
+          ),
+          // themeMode picks a fixed light/dark rather than ThemeMode.system,
+          // since the ask was an explicit in-app switch, not "follow the
+          // phone's setting".
+          themeMode: darkModeEnabled ? ThemeMode.dark : ThemeMode.light,
+          home: onboardingComplete ? const HomeShell() : const OnboardingPage(),
+        );
+      },
     );
   }
 }

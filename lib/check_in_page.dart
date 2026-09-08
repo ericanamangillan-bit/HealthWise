@@ -26,9 +26,8 @@ class _CheckInPageState extends State<CheckInPage> {
       'stress': _stress.round(),
     };
     Hive.box(checkInsBoxName).add(entry);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Check-in saved')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Check-in saved')));
   }
 
   Widget _buildSlider({
@@ -82,10 +81,7 @@ class _CheckInPageState extends State<CheckInPage> {
               onChanged: (v) => setState(() => _stress = v),
             ),
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _saveCheckIn,
-              child: const Text('Save'),
-            ),
+            ElevatedButton(onPressed: _saveCheckIn, child: const Text('Save')),
           ],
         ),
       ),

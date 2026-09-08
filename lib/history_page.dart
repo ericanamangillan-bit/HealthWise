@@ -31,10 +31,6 @@ class HistoryPage extends StatelessWidget {
               (a, b) => (a['date'] as String).compareTo(b['date'] as String),
             );
 
-          if (entries.isEmpty) {
-            return const Center(child: Text('No check-ins yet'));
-          }
-
           final moodSpots = <FlSpot>[];
           final energySpots = <FlSpot>[];
           final stressSpots = <FlSpot>[];
@@ -60,6 +56,16 @@ class HistoryPage extends StatelessWidget {
             energySpots.add(FlSpot(x, energy.toDouble()));
             stressSpots.add(FlSpot(x, stress.toDouble()));
             x += 1;
+          }
+
+          // Checked here, after filtering, rather than on the raw entries
+          // list above: a device could have check-ins saved (entries is
+          // non-empty) that are all missing mood/energy/stress — e.g. old
+          // check-ins from before Stress replaced Tiredness — which would
+          // otherwise fall through and render three empty, unlabelled
+          // charts instead of this message.
+          if (moodSpots.isEmpty) {
+            return const Center(child: Text('No check-ins yet'));
           }
 
           return ListView(
@@ -115,11 +121,21 @@ class _ChartCard extends StatelessWidget {
               minY: 1,
               maxY: 10,
               titlesData: const FlTitlesData(
-                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
                 leftTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: true, reservedSize: 28, interval: 3),
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 28,
+                    interval: 3,
+                  ),
                 ),
               ),
               gridData: const FlGridData(show: true, horizontalInterval: 3),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'check_in_page.dart';
 import 'history_page.dart';
 import 'insights_page.dart';
+import 'settings_page.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -14,7 +15,12 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _selectedIndex = 0;
 
-  static const _pages = [CheckInPage(), HistoryPage(), InsightsPage()];
+  static const _pages = [
+    CheckInPage(),
+    HistoryPage(),
+    InsightsPage(),
+    SettingsPage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +37,7 @@ class _HomeShellState extends State<HomeShell> {
           NavigationDestination(icon: Icon(Icons.edit_note), label: 'Check-In'),
           NavigationDestination(icon: Icon(Icons.show_chart), label: 'History'),
           NavigationDestination(icon: Icon(Icons.insights), label: 'Insights'),
+          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),
     );

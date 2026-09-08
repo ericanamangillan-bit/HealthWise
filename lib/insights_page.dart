@@ -75,8 +75,7 @@ class InsightsPage extends StatelessWidget {
 
     final stressedAvg =
         stressedEnergies.reduce((a, b) => a + b) / stressedEnergies.length;
-    final calmAvg =
-        calmEnergies.reduce((a, b) => a + b) / calmEnergies.length;
+    final calmAvg = calmEnergies.reduce((a, b) => a + b) / calmEnergies.length;
 
     final comparison = stressedAvg > calmAvg
         ? 'higher'
