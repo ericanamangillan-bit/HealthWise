@@ -13,7 +13,7 @@ class CheckInPage extends StatefulWidget {
 class _CheckInPageState extends State<CheckInPage> {
   double _mood = 5;
   double _energy = 5;
-  double _tiredness = 5;
+  double _stress = 5;
 
   void _saveCheckIn() {
     // Hive stores plain Dart objects (here, a Map) as one record. .add()
@@ -23,7 +23,7 @@ class _CheckInPageState extends State<CheckInPage> {
       'date': DateTime.now().toIso8601String(),
       'mood': _mood.round(),
       'energy': _energy.round(),
-      'tiredness': _tiredness.round(),
+      'stress': _stress.round(),
     };
     Hive.box(checkInsBoxName).add(entry);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -77,9 +77,9 @@ class _CheckInPageState extends State<CheckInPage> {
             ),
             const SizedBox(height: 16),
             _buildSlider(
-              label: 'Tiredness',
-              value: _tiredness,
-              onChanged: (v) => setState(() => _tiredness = v),
+              label: 'Stress',
+              value: _stress,
+              onChanged: (v) => setState(() => _stress = v),
             ),
             const SizedBox(height: 32),
             ElevatedButton(

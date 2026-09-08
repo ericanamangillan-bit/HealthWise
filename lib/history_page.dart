@@ -37,19 +37,29 @@ class HistoryPage extends StatelessWidget {
 
           final moodSpots = <FlSpot>[];
           final energySpots = <FlSpot>[];
-          final tirednessSpots = <FlSpot>[];
+          final stressSpots = <FlSpot>[];
 
-          // x is just "1st check-in, 2nd check-in, ..." rather than a real
+          // x is just "1st valid check-in, 2nd, ..." rather than a real
           // date, which keeps the chart simple. A follow-up could map x to
           // the actual date for proper date labels on the axis.
-          for (var i = 0; i < entries.length; i++) {
-            final entry = entries[i];
-            final x = i.toDouble();
-            moodSpots.add(FlSpot(x, (entry['mood'] as num).toDouble()));
-            energySpots.add(FlSpot(x, (entry['energy'] as num).toDouble()));
-            tirednessSpots.add(
-              FlSpot(x, (entry['tiredness'] as num).toDouble()),
-            );
+          //
+          // `as num?` (not `as num`) is deliberate: a check-in saved before
+          // the Stress field existed (it used to be called Tiredness) has
+          // no 'stress' key, so entry['stress'] is null. Casting null
+          // straight to num throws; casting to num? just gives null, which
+          // we then skip below instead of crashing the whole screen.
+          var x = 0.0;
+          for (final entry in entries) {
+            final mood = entry['mood'] as num?;
+            final energy = entry['energy'] as num?;
+            final stress = entry['stress'] as num?;
+            if (mood == null || energy == null || stress == null) {
+              continue;
+            }
+            moodSpots.add(FlSpot(x, mood.toDouble()));
+            energySpots.add(FlSpot(x, energy.toDouble()));
+            stressSpots.add(FlSpot(x, stress.toDouble()));
+            x += 1;
           }
 
           return ListView(
@@ -68,9 +78,9 @@ class HistoryPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               _ChartCard(
-                title: 'Tiredness',
+                title: 'Stress',
                 color: Colors.teal,
-                spots: tirednessSpots,
+                spots: stressSpots,
               ),
             ],
           );

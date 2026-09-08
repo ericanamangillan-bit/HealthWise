@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'check_in_page.dart';
 import 'history_page.dart';
+import 'insights_page.dart';
 
 // main() is async because Hive needs to do disk setup (initFlutter) and
 // open the checkins box *before* the app starts, otherwise the Check-In
@@ -39,7 +40,7 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _selectedIndex = 0;
 
-  static const _pages = [CheckInPage(), HistoryPage()];
+  static const _pages = [CheckInPage(), HistoryPage(), InsightsPage()];
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +55,7 @@ class _HomeShellState extends State<HomeShell> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.edit_note), label: 'Check-In'),
           NavigationDestination(icon: Icon(Icons.show_chart), label: 'History'),
+          NavigationDestination(icon: Icon(Icons.insights), label: 'Insights'),
         ],
       ),
     );
