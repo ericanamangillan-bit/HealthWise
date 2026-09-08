@@ -46,3 +46,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Claude Code working docs — internal notes, not part of the shipped app
+CLAUDE.md
+DECISIONS.md

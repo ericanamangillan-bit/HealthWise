@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-const String checkInsBoxName = 'checkins';
+import 'check_in_page.dart';
+import 'history_page.dart';
 
+// main() is async because Hive needs to do disk setup (initFlutter) and
+// open the checkins box *before* the app starts, otherwise the Check-In
+// screen would try to write to a box that isn't ready yet.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
@@ -20,95 +24,37 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const CheckInPage(title: 'Daily Check-In'),
+      home: const HomeShell(),
     );
   }
 }
 
-class CheckInPage extends StatefulWidget {
-  const CheckInPage({super.key, required this.title});
-
-  final String title;
+class HomeShell extends StatefulWidget {
+  const HomeShell({super.key});
 
   @override
-  State<CheckInPage> createState() => _CheckInPageState();
+  State<HomeShell> createState() => _HomeShellState();
 }
 
-class _CheckInPageState extends State<CheckInPage> {
-  double _mood = 5;
-  double _energy = 5;
-  double _tiredness = 5;
+class _HomeShellState extends State<HomeShell> {
+  int _selectedIndex = 0;
 
-  void _saveCheckIn() {
-    final entry = {
-      'date': DateTime.now().toIso8601String(),
-      'mood': _mood.round(),
-      'energy': _energy.round(),
-      'tiredness': _tiredness.round(),
-    };
-    Hive.box(checkInsBoxName).add(entry);
-    debugPrint(
-      'Mood: ${entry['mood']}, Energy: ${entry['energy']}, Tiredness: ${entry['tiredness']}',
-    );
-  }
-
-  Widget _buildSlider({
-    required String label,
-    required double value,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('$label: ${value.round()}', style: const TextStyle(fontSize: 18)),
-        Slider(
-          value: value,
-          min: 1,
-          max: 10,
-          divisions: 9,
-          label: value.round().toString(),
-          onChanged: onChanged,
-        ),
-      ],
-    );
-  }
+  static const _pages = [CheckInPage(), HistoryPage()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildSlider(
-              label: 'Mood',
-              value: _mood,
-              onChanged: (v) => setState(() => _mood = v),
-            ),
-            const SizedBox(height: 16),
-            _buildSlider(
-              label: 'Energy',
-              value: _energy,
-              onChanged: (v) => setState(() => _energy = v),
-            ),
-            const SizedBox(height: 16),
-            _buildSlider(
-              label: 'Tiredness',
-              value: _tiredness,
-              onChanged: (v) => setState(() => _tiredness = v),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _saveCheckIn,
-              child: const Text('Save'),
-            ),
-          ],
-        ),
+      // IndexedStack keeps both pages alive in memory and just hides the
+      // one not selected, instead of destroying/rebuilding it. That's what
+      // stops slider values on Check-In from resetting when you tab away.
+      body: IndexedStack(index: _selectedIndex, children: _pages),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (index) => setState(() => _selectedIndex = index),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.edit_note), label: 'Check-In'),
+          NavigationDestination(icon: Icon(Icons.show_chart), label: 'History'),
+        ],
       ),
     );
   }
